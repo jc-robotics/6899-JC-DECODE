@@ -194,8 +194,8 @@ public class MecanumMove {
     public void move(double x, double y, double turn) {
         wheel1.setPower(y + x + turn);
         wheel2.setPower(y - x - turn);
-        wheel3.setPower((y - x + turn) * 1.315);
-        wheel4.setPower((y + x - turn) * 1.315);
+        wheel3.setPower(y - x + turn);
+        wheel4.setPower(y + x - turn);
     }
     public void moveT(double x, double y, double turn, double DebugVar) {
         wheel1.setPower(y + x + turn);
