@@ -2,6 +2,10 @@
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.
 
+### NOTICE
+
+For those using **Android Studio or git CLI**, *please ensure you run git commit to check off the files you wish to push before you actually push*, this should mitigate the necessity to use github desktop
+
 ## Welcome!
 This GitHub repository contains the source code that is used to build an Android app to control a *FIRST* Tech Challenge competition robot.  To use this SDK, download/clone the entire project to your local computer.
 
