@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class drivetrain {
+public class DriveTrain {
     DcMotor LF, LB, RF, RB;
     public void init (HardwareMap map){
         LF = map.get(DcMotor.class, "FrontLeft");
