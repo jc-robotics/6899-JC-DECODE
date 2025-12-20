@@ -5,12 +5,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class DriveTrain {
-    DcMotor LF, LB, RF, RB;
+    DcMotor LF, LB, RF, RB, GunR, GunL;
     public void init (HardwareMap map){
         LF = map.get(DcMotor.class, "FrontLeft");
         RF = map.get(DcMotor.class, "FrontRight");
         LB = map.get(DcMotor.class, "BackLeft");
         RB = map.get(DcMotor.class, "BackRight");
+
+        GunR = map.get(DcMotor.class, "GunRight");
+        GunL = map.get(DcMotor.class, "GunLeft");
+
+        Intake = map.get(DcMotor.class, "Intake");
     }
     //Motor Setup
     void initializeMotor(DcMotor motor,  DcMotor.Direction direction) {
@@ -27,16 +32,55 @@ public class DriveTrain {
         motor.setDirection(direction);
 
     }
-    //Moves the Bot Duh
-    public void move(double x, double y, double turn) {
+    //Moves the 4 mechanum wheels in a car formation
+    public void DTMove(double x, double y, double turn) {
         LF.setPower(y+x+turn);
         LB.setPower(y-x-turn);
         RF.setPower(y-x+turn);
         RB.setPower(y+x-turn);
     }
+    // Gear shifter for speed setting
+    public double GearShift(int DTGear) {
+      string DriveTrainGear = "";
+      switch (DTGear){
+              case 0:
+                  DTSpeed = 0;
+                  DriveTrainGear = "0- 0%";
+                  break;
+              case 1:
+                  DTSpeed = 0.2;
+                  DriveTrainGear = "1- 20%";
+                  break;
+              case 2:
+                  DTSpeed = 0.4;
+                  DriveTrainGear = "2- 40%";
+                  break;
+              case 3:
+                  DTSpeed = 0.6;
+                  DriveTrainGear = "3- 60%";
+                  break;
+              case 4:
+                  DTSpeed = 0.8;
+                  DriveTrainGear = "4- 80%";
+                  break;
+              case 5:
+                  DTSpeed = 1;
+                  DriveTrainGear = "5- 100%";
+                  break;
+              default:
+                  DTSpeed = 0;
+                  DriveTrainGear ="Overgeared- 0%";
+                  break;
+      }
+
+    }
+
+    public int GradualGearShift(double Shifting_value) {
+      Shifting_value = Math.ceil(5*Shifting_value);
+      return GearShift(Shifting_value);
+    }
 
 
 }
-
 
 

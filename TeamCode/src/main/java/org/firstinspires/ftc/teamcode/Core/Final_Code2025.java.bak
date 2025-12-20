@@ -18,13 +18,13 @@ import java.util.Objects;
 
 @TeleOp(name="Final Code", group="demo")
 public class Final_Code2025 extends PlayOpMode {
-    HardwareMap map;
+    //HardwareMap map;
 
     //Class Ref
-    drivetrain d = new drivetrain();
-    lift l = new lift();
+    drivetrain d = new DriveTrain();
+    //lift l = new lift();
     Sensor S = new Sensor();
-    Final_Intake intake = new Final_Intake();
+    //Final_Intake intake = new Final_Intake();
 
     //Controller
     Gamepad current;
