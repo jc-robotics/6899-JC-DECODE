@@ -42,9 +42,6 @@ public class DriveTrain {
     // Gear shifter for speed setting
     public double GearShift(int DTGear) {
       switch (DTGear){
-              case 0:
-                  DTSpeed = 0;
-                  DriveTrainGear = "0- 0%";
               case 1:
                   DTSpeed = 0.2;
                   DriveTrainGear = "1- 20%";
@@ -62,7 +59,7 @@ public class DriveTrain {
                   DriveTrainGear = "5- 100%";
               default:
                   DTSpeed = 0;
-                  DriveTrainGear ="Overgeared- 0%";
+                  DriveTrainGear ="0- 0%";
       }
       return DTSpeed;
       break;
