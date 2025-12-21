@@ -67,6 +67,7 @@ public class Initialization extends PlayOpMode {
     int op;
     int DT_gear = 0;
     int DT_speed = 0;
+    string DriveTrainGear = "";
     //double Min;
     //double Max;
     double Offset = 4390;
