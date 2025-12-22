@@ -10,11 +10,24 @@ import org.firstinspires.ftc.DriveTrain;
 
 public class Controls extends DriveTrain {
 
+  void Controlling() {
 
-  DTMove(LSx_lerped*DT_speed, LSy_lerped*DT_speed, RSx_lerped*DT_speed);
+    DTMove(LSx_lerped, LSy_lerped, RSx_lerped);
 
-  GunR = GradualGearShift(RTrigger);
-  GunL = GradualGearShift(RTrigger);
+    Intake = LSy_lerped;
 
+    if (current.a && !previous.a) {
+      GunL = -0.3;
+      GunR = -0.3;
+    }
+    if (RTrigger != 0) {
+      GunR = GradualGearShift(RTrigger);
+      GunL = GradualGearShift(RTrigger);
+    }
+    if (!current.a && previous.a) {
+      Intake = .01;
+
+    }
+  }
 
 }

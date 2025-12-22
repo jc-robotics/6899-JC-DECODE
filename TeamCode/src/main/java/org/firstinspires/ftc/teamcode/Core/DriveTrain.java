@@ -20,17 +20,14 @@ public class DriveTrain {
     //Motor Setup
     void initializeMotor(DcMotor motor,  DcMotor.Direction direction) {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setDirection(direction);
-
     }
     void initializeEncoderMotor(DcMotor motor,  DcMotor.Direction direction) {
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setDirection(direction);
-
     }
     //Moves the 4 mechanum wheels in a car formation
     public void DTMove(double x, double y, double turn) {
@@ -64,7 +61,6 @@ public class DriveTrain {
       return DTSpeed;
       break;
     }
-
     public int GradualGearShift(double Shifting_value) {
       Shifting_value = Math.ceil(5*Shifting_value);
       return GearShift(Shifting_value);
