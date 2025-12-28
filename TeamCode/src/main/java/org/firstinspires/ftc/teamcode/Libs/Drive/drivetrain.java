@@ -14,7 +14,7 @@ public class drivetrain {
         FireL = map.get(DcMotor.class, "FireL");
         FireR = map.get(DcMotor.class, "FireR");
     }
-    
+
     void initializeMotor(DcMotor motor, DcMotor.Direction direction) {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
