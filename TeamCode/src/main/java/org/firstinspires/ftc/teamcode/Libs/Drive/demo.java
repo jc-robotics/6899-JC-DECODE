@@ -43,11 +43,12 @@ public class demo extends PlayOpMode {
 
         d.init(map);
         d.initializeMotor(d.BL, DcMotor.Direction.REVERSE);
-        d.initializeMotor(d.FL, DcMotor.Direction.FORWARD);
-        d.initializeMotor(d.FR, DcMotor.Direction.REVERSE);
+        d.initializeMotor(d.FL, DcMotor.Direction.REVERSE);
+        d.initializeMotor(d.FR, DcMotor.Direction.FORWARD);
         d.initializeMotor(d.BR, DcMotor.Direction.FORWARD);
 
         d.initializeMotor(d.im, DcMotor.Direction.FORWARD);
+        d.initializeMotor(d.im2, DcMotorSimple.Direction.FORWARD);
         d.initializeMotor(d.FireL, DcMotor.Direction.FORWARD);
         d.initializeMotor(d.FireR, DcMotorSimple.Direction.REVERSE);
     } //Initializing Motors
@@ -83,25 +84,25 @@ public class demo extends PlayOpMode {
         RT = gamepaD.right_trigger;
     } //Assigning Gamepad Controls
 
+    void intake(){
+        d.intake(a, d.im, DcMotor.Direction.REVERSE, Speed1);
+        d.intake1(x, y, d.im2, DcMotorSimple.Direction.FORWARD, Speed1);
+    }
+
     void Shooter(){
         d.Fire(d.FireL,DcMotor.Direction.FORWARD,RT);
         d.Fire(d.FireR, DcMotorSimple.Direction.REVERSE,RT);
     } // Function to operate shooting Artifacts
 
-
     @Override
     protected void run(double dt) throws InterruptedException {
         Controller(gamepad1);
-
         //Breaks for the Drive train
         lsx_lerped = lerp(lsx_lerped, lsx, 0.9);
         rsx_lerped = lerp(rsx_lerped, rsx, 0.9);
         lsy_lerped = lerp(lsy_lerped, lsy, 0.9);
-
-        // Intake
-        d.intake(a, d.im, DcMotor.Direction.REVERSE, Speed1);
+        intake();
         SwitchCase();
-
         Shooter();
     }
 }
