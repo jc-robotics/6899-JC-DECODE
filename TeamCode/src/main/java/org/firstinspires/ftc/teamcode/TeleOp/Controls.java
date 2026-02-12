@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import org.firstinspires.ftc.DriveTrain;
+import org.firstinspires.ftc.Core.DriveTrain;
 
 public class Controls extends DriveTrain {
 
-  void Controlling() {
+  public void Controlling() {
 
     DTMove(LSx_lerped, LSy_lerped, RSx_lerped);
 

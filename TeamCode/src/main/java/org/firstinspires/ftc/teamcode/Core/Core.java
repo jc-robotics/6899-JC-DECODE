@@ -25,7 +25,7 @@ import java.util.Objects;
 public class Core extends PlayOpMode {
 
   @Override
-  protected void preinitilize()
+  protected void preInitialize()
   {
     isTeleOp = true;
   }
@@ -107,17 +107,17 @@ public class Core extends PlayOpMode {
 
     telemetry.addData("Status: ","Setting Automation Variables...");
 
-    public String Color;
-    public int Green;
-    public int Blue;
-    public int Red;
-    public int Yellow;
-    public int CurrentC;
-    public ColorSensor Sensor;
-    public Vector3 RGB;
-    public boolean C;
-    public double AVG;
-    public String team;
+    String Color;
+    int Green;
+    int Blue;
+    int Red;
+    int Yellow;
+    int CurrentC;
+    ColorSensor Sensor;
+    Vector3 RGB;
+    boolean C;
+    double AVG;
+    String team;
 
     telemetry.addData("Status: ","Initializing Hardware....");
 
