@@ -52,6 +52,8 @@ public abstract class PlayOpMode extends LinearOpMode{
         isTeleOp = false;
     }
 
+    protected abstract void preinitilize();
+
     /**
      * Initialize
      */
