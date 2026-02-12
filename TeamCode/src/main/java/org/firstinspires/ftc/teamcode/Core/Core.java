@@ -1,4 +1,25 @@
-package org.firstinspires.ftc.teamcode;
+
+package org.firstinspires.ftc.teamcode.Core;
+import static org.firstinspires.ftc.teamcode.Libs.JCLibs.lerp;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.*;
+
+import org.firstinspires.ftc.teamcode.Libs.Classes.Vector3;
+import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
+import org.firstinspires.ftc.teamcode.Sensor;
+
+import java.util.Objects;
+
+
 
 @TeleOp(name="Core", group="demo")
 public class Core extends PlayOpMode {
@@ -70,7 +91,7 @@ public class Core extends PlayOpMode {
     //int op;
     //int DT_gear = 0;
     //int DT_speed = 0;
-    string DriveTrainGear = "";
+    String DriveTrainGear = "";
     //double Min;
     //double Max;
     double Offset = 4390;

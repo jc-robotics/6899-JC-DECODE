@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Core;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.teamcode.TeleOp.Controls;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -38,6 +39,8 @@ public class DriveTrain {
     }
     // Gear shifter for speed setting
     public double GearShift(int DTGear) {
+      double DTSpeed;
+      String DriveTrainGear;
       switch (DTGear){
               case 1:
                   DTSpeed = 0.2;
@@ -59,11 +62,10 @@ public class DriveTrain {
                   DriveTrainGear ="0- 0%";
       }
       return DTSpeed;
-      break;
     }
     public int GradualGearShift(double Shifting_value) {
       Shifting_value = Math.ceil(5*Shifting_value);
-      return GearShift(Shifting_value);
+      return (int) GearShift((int) Shifting_value);
     }
 
 

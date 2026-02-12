@@ -1,10 +1,4 @@
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-package org.firstinspires.ftc.Initialization;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import org.firstinspires.ftc.DriveTrain;
 
