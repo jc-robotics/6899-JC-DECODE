@@ -25,17 +25,17 @@ public class DriveTrain {
         motor.setDirection(direction);
     }
     void initializeEncoderMotor(DcMotor motor,  DcMotor.Direction direction) {
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setDirection(direction);
+      motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+      motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+      motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      motor.setDirection(direction);
     }
     //Moves the 4 mechanum wheels in a car formation
     public void DTMove(double x, double y, double turn) {
-        LF.setPower(y+x+turn);
-        LB.setPower(y-x-turn);
-        RF.setPower(y-x+turn);
-        RB.setPower(y+x-turn);
+      LF.setPower(y+x+turn);
+      LB.setPower(y-x-turn);
+      RF.setPower(y-x+turn);
+      RB.setPower(y+x-turn);
     }
     // Gear shifter for speed setting
     public double GearShift(int DTGear) {
@@ -45,30 +45,32 @@ public class DriveTrain {
               case 1:
                   DTSpeed = 0.2;
                   DriveTrainGear = "1- 20%";
+                  break;
               case 2:
                   DTSpeed = 0.4;
                   DriveTrainGear = "2- 40%";
+                  break;
               case 3:
                   DTSpeed = 0.6;
                   DriveTrainGear = "3- 60%";
+                  break;
               case 4:
                   DTSpeed = 0.8;
                   DriveTrainGear = "4- 80%";
+                  break;
               case 5:
                   DTSpeed = 1;
                   DriveTrainGear = "5- 100%";
+                  break;
               default:
                   DTSpeed = 0;
                   DriveTrainGear ="0- 0%";
+                  break;
       }
       return DTSpeed;
     }
-    public int GradualGearShift(double Shifting_value) {
+    public double GradualGearShift(double Shifting_value) {
       Shifting_value = Math.ceil(5*Shifting_value);
-      return (int) GearShift((int) Shifting_value);
+      return GearShift((int) Shifting_value);
     }
-
-
 }
-
-
