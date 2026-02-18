@@ -1,18 +1,19 @@
-package org.firstinspires.ftc.teamcode.Libs.Drive;
+package org.firstinspires.ftc.teamcode.Libs.Tank;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 //
 public class drivetrain {
-    public DcMotor FL,FR,BL,BR,im,im2,FireL,FireR; // Declaration of Motors
+    public DcMotor FL,FR,BL,BR,im,screw,FireL,FireR; // Declaration of Motors
     public void init (HardwareMap map) {
-        FL = map.get(DcMotor.class, "Front Left");
-        FR = map.get(DcMotor.class, "Front Right");
-        BL = map.get(DcMotor.class, "Back Left");
-        BR = map.get(DcMotor.class, "Back Right");
-        im = map.get(DcMotor.class, "intake");
-        im2 = map.get(DcMotor.class, "intake2");
+        FL = map.get(DcMotor.class, "FrontLeft");
+        FR = map.get(DcMotor.class, "FrontRight");
+        BL = map.get(DcMotor.class, "BackLeft");
+        BR = map.get(DcMotor.class, "BackRight");
+        im = map.get(DcMotor
+                .class, "intake");
+        screw = map.get(DcMotor.class, "screw");
         FireL = map.get(DcMotor.class, "FireL");
         FireR = map.get(DcMotor.class, "FireR");
     } // function Hardware Map Motors so we can tell each motor what to do
@@ -25,9 +26,9 @@ public class drivetrain {
     } // Function to initialize Motor
 
     public void move(double x, double y, double turn) {
-        FL.setPower(-(y+x+turn));
+        FL.setPower(y+x+turn);
         BL.setPower(y-x+turn);
-        FR.setPower(-(y-x-turn));
+        FR.setPower(y-x-turn);
         BR.setPower(y+x-turn);
 
     } // Function to make Drive train move
@@ -71,5 +72,6 @@ public class drivetrain {
         motor.setDirection(direction);
         motor.setPower(power);
     } //Shooting Function
+    
 }
 
