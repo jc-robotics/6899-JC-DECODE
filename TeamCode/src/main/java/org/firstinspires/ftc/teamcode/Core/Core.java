@@ -204,33 +204,48 @@ public class Core extends PlayOpMode {
     RSy = applyDeadzone(RSy, 0.05);
     RTrigger = applyDeadzone(RTrigger, 0.05);
 
-    LSx_lerped = lerpIt(applyDeadzone(LSx, 0.05);, 0.588, 0.8);
-    LSy_lerped = lerpIt(applyDeadzone(LSy, 0.05);, 0.588, 0.8);
-    RSx_lerped = lerpIt(applyDeadzone(RSx, 0.05);, 0.588, 0.8);
+    if (LBumper) {
+      // use left bumper to et far more precise inputs without LERP
+      LSx_lerped = applyDeadzone(LSx, 0.02)/2;
+      LSy_lerped = applyDeadzone(LSy, 0.02)/2;
+      RSx_lerped = applyDeadzone(RSx, 0.02)/2;
+    } else {
+      //base movement options
+      LSx_lerped = lerpIt(applyDeadzone(LSx, 0.05);, 0.588, 0.8);
+      LSy_lerped = lerpIt(applyDeadzone(LSy, 0.05);, 0.588, 0.8);
+      RSx_lerped = lerpIt(applyDeadzone(RSx, 0.05);, 0.588, 0.8);
+    }
     DTMove(LSx_lerped, LSy_lerped, RSx_lerped);
 
-    Intake.setPower(LSy_lerped/2);
 
+    //pressing a reverses the gun to push back any balls
     if (face_a && !previous.a) {
       GunL.setPower(-0.3);
       GunR.setPower(-0.3);
     }
+    //right trigger is the gun controls
     if (RTrigger != 0) {
+      //gradual gear shift refers to more reliable controls for the gun, holding right bumper diasbles the gear for more direct control
       double power = RBumper ? RTrigger : GradualGearShift(RTrigger);
       GunL.setPower(power);
       GunR.setPower(power);
     }
+    //lets the intake rip when the b button is released
     if (!face_b && previous.b) {
       Intake.setPower(0.6);
     }
+    //y is the moderate button for the intake to slowly pull in a ball
     if (face_y) {
       Intake.setPower(0.2);
     }
+    //x is the button to raise the ball to the gun to shoot
     if (face_x) {
       Intake.setPower(0.1);
       Lift.setPower(0.7);
     }
+    //direct lift control with vertical d pad
     Lift.setPower(up_d ? 0.5 : down_d ? -0.5 : 0);
+    //direct intake control with vertical d pad
     Intake.setPower(left_d ? 0.5 : right_d ? -0.5 : 0);
   }
 
@@ -255,7 +270,6 @@ public class Core extends PlayOpMode {
     initializeMotor(GunL, DcMotor.Direction.FORWARD);
     initializeMotor(Intake, DcMotor.Direction.FORWARD);
     initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
-    initializeCamera(Webcam);
     current = new Gamepad();
 
 

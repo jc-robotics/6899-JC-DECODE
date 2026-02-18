@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Core;
 
 @Autonomous (name = "PreProgrammedAuto", group = "Autonomous")
 @Configurable // Panels
-public class PedroAutonomous extends OpMode {
+public class PedroAutonomous extends PlayOpMode {
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
   private int pathState; // Current autonomous path state (state machine)
@@ -31,10 +31,9 @@ public class PedroAutonomous extends OpMode {
   Pose currentPose;
   AprilTagProcessor tagProcessor;
   VisionPortal visionPortal;
-  double wheelR;
-  double tpr;
-  double cameraOffsetx, cameraOffsety;
+  double cameraOffsetx = -5, cameraOffsety = 4;
   DcMotor LF, LB, RF, RB;
+  DcMotor Odo;
   DcMotor GunR, GunL;
   DcMotor Intake;
   DcMotor Lift;
@@ -46,25 +45,23 @@ public class PedroAutonomous extends OpMode {
     RF = map.get(DcMotor.class, "FrontRight");
     LB = map.get(DcMotor.class, "BackLeft");
     RB = map.get(DcMotor.class, "BackRight");
+    Odo = map.get(DcMotor.class, "OdoWheel");
     GunR = map.get(DcMotor.class, "GunRight");
     GunL = map.get(DcMotor.class, "GunLeft");
     Intake = map.get(DcMotor.class, "Intake");
     Lift = map.get(DcMotor.class, "Lift");
     Camera = map.get(WebcamName.class, "Webcam");
   }
+  void initializeOdoMotor(DcMotor motor) {
+    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+  }
   void initializeCamera(WebcamName webcam) {
     tagProcessor = new AprilTagProcessor.Builder().build();
     visionPortal = new VisionPortal.Builder().setCamera(webcam).addProcessor(tagProcessor).build();
   }
 
-  double tick2Inch(int ticks){
-    return (wheelR * 2 * Math.PI) * (ticks / tpr);
-  }
-  public void odoWheel() {
-    double odoInches = tick2Inch(backOdo.getCurrentPosition());
-    follower.updateOdometry(odoInches);
-    checkAprilTagCorrection();
-  }
   public Pose computeCurrentFieldPose(AprilTagDetection tag) {
     double tagFieldX = tag.fieldX;
     double tagFieldY = tag.fieldY;
@@ -93,12 +90,31 @@ public class PedroAutonomous extends OpMode {
 
     return new Pose(robotX, robotY, robotHeading);
   }
+public void checkAprilTagCorrection() {
+    List<AprilTagDetection> detections = tagProcessor.getDetections();
+
+    if (detections.size() > 0 && follower.isBusy() == false) {
+
+        AprilTagDetection tag = detections.get(0);
+        Pose visionPose = computeCurrentFieldPose(tag);
+
+        follower.setPose(visionPose);
+    }
+}
 
   @Override
   public void init() {
     telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
     initHardware(hardwareMap);
+    initializeMotor(LB, DcMotor.Direction.REVERSE);
+    initializeMotor(LF, DcMotor.Direction.FORWARD);
+    initializeMotor(RF, DcMotor.Direction.FORWARD);
+    initializeMotor(RB, DcMotor.Direction.REVERSE);
+    initializeMotor(GunR, DcMotor.Direction.REVERSE);
+    initializeMotor(GunL, DcMotor.Direction.FORWARD);
+    initializeMotor(Intake, DcMotor.Direction.FORWARD);
+    initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
     initializeCamera(Camera);
     follower = Constants.createFollower(hardwareMap);
     follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
@@ -112,7 +128,7 @@ public class PedroAutonomous extends OpMode {
   @Override
   public void loop() {
     follower.update(); // Update Pedro Pathing
-    currentPose = computeCurrentFieldPose();
+
     pathState = autonomousPathUpdate(); // Update autonomous state machine
 
     // Log values to Panels and Driver Station
@@ -163,15 +179,9 @@ public class PedroAutonomous extends OpMode {
   }
   Stage currentStage = Stage.IDLE;
   @Override
-  protected void preinitilize() {
+  protected void preInitilize() {
     isTeleOp = false;
   }
-
-  @Override
-  protected void initialize() {
-
-  }
-
   @Override
   protected void run(double dt) throws InterruptedException {
     switch (currentStage) {
