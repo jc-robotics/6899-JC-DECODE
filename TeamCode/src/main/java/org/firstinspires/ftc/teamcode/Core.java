@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 @TeleOp(name="TeleOp", group="demo")
-public class Control extends PlayOpMode {
+abstract public class Control extends PlayOpMode {
 
   @Override
   protected void preInitialize()
@@ -91,7 +91,7 @@ public class Control extends PlayOpMode {
   }
   void moveLiftBackToInitialPosition(DcMotor motor) {
     motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    motor.setTargetPosition(initialPosition);
+    motor.setTargetPosition(liftZero);
 
     motor.setPower(0.5);
     while (motor.isBusy()) {
@@ -285,9 +285,6 @@ public class Control extends PlayOpMode {
     telemetry.addData("Face button X on: ",face_x);
     telemetry.addData("Face button Y on: ",face_y);
     telemetry.addLine();
-    //VARIABLES
-    //telemetry.addData("",threshold);
-    //telemetry.addData("",trs);
     telemetry.addData("Left stick x value: ",LSx_lerped);
     telemetry.addData("Left stick y value: ",LSy_lerped);
     telemetry.addData("Right stick x value: ",RSx_lerped);
