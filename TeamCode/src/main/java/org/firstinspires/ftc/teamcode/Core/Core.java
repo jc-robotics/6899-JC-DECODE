@@ -94,11 +94,6 @@ public class Core extends PlayOpMode {
   double AVG;
   String team;
 
-  AprilTagProcessor tagProcessor;
-  VisionPortal visionPortal;
-  double wheelR;
-  int tpr;
-
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
     RF = map.get(DcMotor.class, "FrontRight");
@@ -226,9 +221,17 @@ public class Core extends PlayOpMode {
       GunR.setPower(power);
     }
     if (!face_b && previous.b) {
+      Intake.setPower(0.6);
+    }
+    if (face_y) {
+      Intake.setPower(0.2);
+    }
+    if (face_x) {
       Intake.setPower(0.1);
+      Lift.setPower(0.7);
     }
     Lift.setPower(up_d ? 0.5 : down_d ? -0.5 : 0);
+    Intake.setPower(left_d ? 0.5 : right_d ? -0.5 : 0);
   }
 
   @Override

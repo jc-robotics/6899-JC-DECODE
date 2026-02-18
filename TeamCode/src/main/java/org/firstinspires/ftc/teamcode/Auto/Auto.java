@@ -18,7 +18,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
-package org.firstinspires.ftc.teamcode.Core;
+import org.firstinspires.ftc.teamcode.Core;
 
 @Autonomous (name = "PreProgrammedAuto", group = "Autonomous")
 @Configurable // Panels
@@ -28,8 +28,11 @@ public class PedroAutonomous extends OpMode {
   private int pathState; // Current autonomous path state (state machine)
   private Paths paths; // Paths defined in the Paths class
   public double odoInches;
+  Pose currentPose;
+  AprilTagProcessor tagProcessor;
+  VisionPortal visionPortal;
   double wheelR;
-  int tpr;
+  double tpr;
   double cameraOffsetx, cameraOffsety;
   DcMotor LF, LB, RF, RB;
   DcMotor GunR, GunL;
@@ -37,6 +40,7 @@ public class PedroAutonomous extends OpMode {
   DcMotor Lift;
   WebcamName Camera;
 
+  @Override
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
     RF = map.get(DcMotor.class, "FrontRight");
@@ -54,14 +58,14 @@ public class PedroAutonomous extends OpMode {
   }
 
   double tick2Inch(int ticks){
-    return (wheelR * 2 * Math.PI) * (ticks / tpr)
+    return (wheelR * 2 * Math.PI) * (ticks / tpr);
   }
   public void odoWheel() {
     double odoInches = tick2Inch(backOdo.getCurrentPosition());
     follower.updateOdometry(odoInches);
     checkAprilTagCorrection();
   }
-  public Pose computeFieldPose(AprilTagDetection tag) {
+  public Pose computeCurrentFieldPose(AprilTagDetection tag) {
     double tagFieldX = tag.fieldX;
     double tagFieldY = tag.fieldY;
     double tagFieldHeading = Math.toRadians(tag.fieldYaw);
@@ -80,11 +84,9 @@ public class PedroAutonomous extends OpMode {
 
     double robotHeading = tagFieldHeading - Math.toRadians(tag.relativeYaw);
 
-    double offsetX = CAMERA_OFFSET_X * Math.cos(robotHeading)
-      - CAMERA_OFFSET_Y * Math.sin(robotHeading);
+    double offsetX = cameraOffsetx * Math.cos(robotHeading) - cameraOffsety * Math.sin(robotHeading);
 
-    double offsetY = CAMERA_OFFSET_X * Math.sin(robotHeading)
-      + CAMERA_OFFSET_Y * Math.cos(robotHeading);
+    double offsetY = cameraOffsetx * Math.sin(robotHeading) + cameraOffsety * Math.cos(robotHeading);
 
     robotX -= offsetX;
     robotY -= offsetY;
@@ -96,6 +98,8 @@ public class PedroAutonomous extends OpMode {
   public void init() {
     telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
+    initHardware(hardwareMap);
+    initializeCamera(Camera);
     follower = Constants.createFollower(hardwareMap);
     follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
 
@@ -108,6 +112,7 @@ public class PedroAutonomous extends OpMode {
   @Override
   public void loop() {
     follower.update(); // Update Pedro Pathing
+    currentPose = computeCurrentFieldPose();
     pathState = autonomousPathUpdate(); // Update autonomous state machine
 
     // Log values to Panels and Driver Station
