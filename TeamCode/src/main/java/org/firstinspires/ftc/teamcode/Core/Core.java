@@ -94,6 +94,11 @@ public class Core extends PlayOpMode {
   double AVG;
   String team;
 
+  AprilTagProcessor tagProcessor;
+  VisionPortal visionPortal;
+  double wheelR;
+  int tpr;
+
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
     RF = map.get(DcMotor.class, "FrontRight");
@@ -103,7 +108,6 @@ public class Core extends PlayOpMode {
     GunL = map.get(DcMotor.class, "GunLeft");
     Intake = map.get(DcMotor.class, "Intake");
     Lift = map.get(DcMotor.class, "Lift");
-    //Sehsoru = ;
   }
 
   //Motor Setup
@@ -118,6 +122,11 @@ public class Core extends PlayOpMode {
     motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     motor.setDirection(direction);
   }
+
+  double tick2Inch(int ticks){
+      return (wheelR * 2 * Math.PI) * (ticks / tpr)
+  }
+
   //Moves the 4 mechanum wheels in a car formation
   public void DTMove(double x, double y, double turn) {
     LF.setPower(y+x+turn);
@@ -222,7 +231,6 @@ public class Core extends PlayOpMode {
     Lift.setPower(up_d ? 0.5 : down_d ? -0.5 : 0);
   }
 
-
   @Override
   protected void initialize() {
 
@@ -244,6 +252,7 @@ public class Core extends PlayOpMode {
     initializeMotor(GunL, DcMotor.Direction.FORWARD);
     initializeMotor(Intake, DcMotor.Direction.FORWARD);
     initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
+    initializeCamera(Webcam);
     current = new Gamepad();
 
 
