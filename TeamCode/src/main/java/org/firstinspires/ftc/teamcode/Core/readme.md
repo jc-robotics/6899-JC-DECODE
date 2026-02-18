@@ -12,7 +12,7 @@ This is all related to custom written functions designed to be used in the other
 - servos
 - and anything used in the init phase should probably be included unless better judgement proves otherwise
 
-## btw forget everything
+## btw forget everything above
 
 
 # CONTROLS:

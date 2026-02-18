@@ -38,6 +38,18 @@ public class PedroAutonomous extends PlayOpMode {
   DcMotor Intake;
   DcMotor Lift;
   WebcamName Camera;
+  boolean Team, Start_Pos; // Red & Triangle = true; Blue & Goal = false
+  enum Stage {
+    MOVE_TO_CENTER,
+    PICKUP_SAMPLE,
+    MOVE_TO_COLLECT,
+    DROP_SAMPlE,
+    MOVE_TO_SHOOT,
+    RETURN_TO_START,
+    WAIT,
+    RESET,
+    IDLE
+  }
 
   @Override
   public void initHardware(HardwareMap map) {
@@ -102,6 +114,25 @@ public class PedroAutonomous extends PlayOpMode {
     }
   }
 
+  public void moveToCenter() {
+  }
+  public void pickupSample() {
+  }
+  public void moveToCollect() {
+  }
+  public void dropSample() {
+  }
+  public void moveToShoot() {
+  }
+  public void returnToStart() {
+  }
+  public void wait() {
+  }
+  public void reset() {
+  }
+  public void idle() {
+  }
+
   @Override
   public void init() {
     telemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -117,7 +148,18 @@ public class PedroAutonomous extends PlayOpMode {
     initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
     initializeCamera(Camera);
     follower = Constants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
+    if (!detections.isEmpty()) {
+        AprilTagDetection tag = detections.get(0);
+        Pose visionPose = computeCurrentFieldPose(tag);
+        follower.setStartingPose(visionPose);
+        telemetry.addData("Starting Pose", "X: %.2f, Y: %.2f, Heading: %.2f",
+                           visionPose.getX(), visionPose.getY(), visionPose.getHeading());
+    } else {
+        Pose defaultPose = new Pose(72, 8, Math.toRadians(90)); // Example default pose
+        follower.setStartingPose(defaultPose);
+
+        telemetry.addData("Status", "No AprilTag detected. Using default pose.");
+    }
 
     paths = new Paths(follower); // Build paths
 
@@ -142,40 +184,61 @@ public class PedroAutonomous extends PlayOpMode {
   public static class Paths {
     public PathChain Path1;
     public PathChain Path2;
+    public PathChain Path3;
+    public PathChain Path4;
+    public PathChain Path5;
 
     public Paths(Follower follower) {
       Path1 = follower.pathBuilder()
         .addPath(
             new BezierLine(
               new Pose(71.500, 8.000),
-              new Pose(133.280, 89.443)
+              new Pose(72.000, 72.000)
               )
             )
-        .setTangentHeadingInterpolation()
+        .setLinearHeadingInterpolation(Math.toRadians(null), Math.toRadians(90))
         .build();
 
       Path2 = follower.pathBuilder()
         .addPath(
             new BezierLine(
-              new Pose(133.280, 89.443),
-              new Pose(34.773, 65.134)
+              new Pose(72.000, 72.000),
+              new Pose(72.000, 84.000)
+              )
+            )
+        .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
+        .build();
+
+      Path3 = follower.pathBuilder()
+        .addPath(
+            new BezierLine(
+              new Pose(72.000, 84.000),
+              new Pose(18.000, 84.000)
+              )
+            )
+        .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+        .build();
+
+      Path4 = follower.pathBuilder()
+        .addPath(
+            new BezierLine(
+              new Pose(18.000, 84.000),
+              new Pose(72.000, 72.000)
+              )
+            )
+        .setTangentHeadingInterpolation()
+        .build();
+
+      Path5 = follower.pathBuilder()
+        .addPath(
+            new BezierLine(
+              new Pose(72.000, 72.000),
+              new Pose(108.000, 108.000)
               )
             )
         .setTangentHeadingInterpolation()
         .build();
     }
-  }
-  enum Stage {
-    MOVE_TO_CENTER,
-    PICKUP_SAMPLE,
-    MOVE_TO_DROPOFF,
-    DROP_SAMPlE,
-    WAIT,
-    PICKUP_SPECIMEN,
-    MOVE_TO_BAR,
-    DROP_SPECIMEN,
-    Reset,
-    IDLE
   }
   Stage currentStage = Stage.IDLE;
   @Override
@@ -186,32 +249,24 @@ public class PedroAutonomous extends PlayOpMode {
   protected void run(double dt) throws InterruptedException {
     switch (currentStage) {
       case MOVE_TO_CENTER:
-
         break;
-
       case PICKUP_SAMPLE:
         break;
-
-      case MOVE_TO_DROPOFF:
+      case MOVE_TO_COLLECT:
         break;
-
       case DROP_SAMPlE:
         break;
-
+      case MOVE_TO_SHOOT:
+        break;
+      case RETURN_TO_START:
+        break;
       case WAIT:
         break;
-
-      case PICKUP_SPECIMEN:
+      case RESET:
         break;
-
-      case MOVE_TO_BAR:
+      case IDLE:
         break;
-
-      case DROP_SPECIMEN:
-        break;
-
-      case Reset:
-
+      case RESET:
         return;
     }
 
