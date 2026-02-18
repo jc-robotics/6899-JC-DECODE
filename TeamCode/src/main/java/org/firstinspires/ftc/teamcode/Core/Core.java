@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.Libs.JCLibs.lerp;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -15,7 +14,6 @@ import org.firstinspires.ftc.teamcode.*;
 
 import org.firstinspires.ftc.teamcode.Libs.Classes.Vector3;
 import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
-import org.firstinspires.ftc.teamcode.Sensor;
 
 import java.util.Objects;
 
@@ -60,39 +58,14 @@ public class Core extends PlayOpMode {
   public boolean face_b;
   public boolean face_x;
   public boolean face_y;
-  ////Postive edge detectors
-  //boolean face_a_current
-  //boolean face_b_current
-  //boolean face_x_current
-  //boolean face_y_current
-  ////Negative edge detectors
-  //boolean face_a_previous
-  //boolean face_b_previous
-  //boolean face_x_previous
-  //boolean face_y_previous
 
-  public double threshold;
-  public double threshold_;
   public double trs;
   public double LSx_lerped;
   public double RSx_lerped;
   public double LSy_lerped;
   public String DriveTrainGear = "";
-  int Value;
 
-  double zero = 0;
-
-  String Color;
-  int Green;
-  int Blue;
-  int Red;
-  int Yellow;
-  int CurrentC;
-  ColorSensor Sensor;
-  Vector3 RGB;
-  boolean C;
-  double AVG;
-  String team;
+  double zero = 0.0;
 
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
@@ -116,10 +89,6 @@ public class Core extends PlayOpMode {
     motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     motor.setDirection(direction);
-  }
-
-  double tick2Inch(int ticks){
-      return (wheelR * 2 * Math.PI) * (ticks / tpr)
   }
 
   //Moves the 4 mechanum wheels in a car formation
@@ -211,9 +180,9 @@ public class Core extends PlayOpMode {
       RSx_lerped = applyDeadzone(RSx, 0.02)/2;
     } else {
       //base movement options
-      LSx_lerped = lerpIt(applyDeadzone(LSx, 0.05);, 0.588, 0.8);
-      LSy_lerped = lerpIt(applyDeadzone(LSy, 0.05);, 0.588, 0.8);
-      RSx_lerped = lerpIt(applyDeadzone(RSx, 0.05);, 0.588, 0.8);
+      LSx_lerped = lerpIt(applyDeadzone(LSx, 0.05), 0.588, 0.8);
+      LSy_lerped = lerpIt(applyDeadzone(LSy, 0.05), 0.588, 0.8);
+      RSx_lerped = lerpIt(applyDeadzone(RSx, 0.05), 0.588, 0.8);
     }
     DTMove(LSx_lerped, LSy_lerped, RSx_lerped);
 
@@ -275,17 +244,6 @@ public class Core extends PlayOpMode {
 
     previous = new Gamepad();
 
-
-
-    //l.m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    //l.m1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-    //Min = l.DC1.getCurrentPosition();
-    //Max = Min + Offset;
-
-
-    Color="";
-
     telemetry.addData("Status: ","Initialization Complete");
     telemetry.update();
   }
@@ -323,25 +281,9 @@ public class Core extends PlayOpMode {
     telemetry.addData("Right stick x value: ",RSx_lerped);
     telemetry.addLine();
     telemetry.addData("Gear: ",DriveTrainGear);
-    telemetry.addData("",Offset);
-    telemetry.addData("",Value);
-
-    telemetry.addData("",Speed);
-    telemetry.addData("",Drive);
 
     telemetry.addData("Status: ","Setting Automation Variables...");
 
-    telemetry.addData("",Color);
-    telemetry.addData("",Green);
-    telemetry.addData("",Blue);
-    telemetry.addData("",Red);
-    telemetry.addData("",Yellow);
-    telemetry.addData("",CurrentC);
-    telemetry.addData("",Sensor);
-    telemetry.addData("",RGB);
-    telemetry.addData("",C);
-    telemetry.addData("",AVG);
-    telemetry.addData("",team);
     telemetry.update();
   }
 
