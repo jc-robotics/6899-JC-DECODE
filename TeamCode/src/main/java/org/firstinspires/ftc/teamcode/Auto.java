@@ -19,7 +19,25 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode;
+
+import static org.firstinspires.ftc.teamcode.Libs.JCLibs.lerp;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Libs.Classes.Vector3;
+import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
+
+import java.util.Objects;
+
+
+
 
 @Autonomous (name = "PreProgrammedAuto", group = "Autonomous")
 @Configurable // Panels
@@ -33,12 +51,6 @@ public class PedroAutonomous extends PlayOpMode {
   AprilTagProcessor tagProcessor;
   VisionPortal visionPortal;
   double cameraOffsetx = -5, cameraOffsety = 4;
-  DcMotor LF, LB, RF, RB;
-  DcMotor Odo;
-  DcMotor GunR, GunL;
-  DcMotor Intake;
-  DcMotor Lift;
-  WebcamName Camera;
   boolean Team, Start_Pos; // Red & Triangle = true; Blue & Goal = false
   enum Stage {
     MOVE_TO_CENTER,
@@ -50,6 +62,44 @@ public class PedroAutonomous extends PlayOpMode {
     WAIT,
     RESET,
     IDLE
+  }
+  //CORE VARIABLES
+  DcMotor LF, LB, RF, RB;
+  DcMotor GunR, GunL;
+  DcMotor Intake;
+  DcMotor Lift;
+  WebcamName Camera;
+  public double liftZero;
+
+  //Motor Setup
+  void initializeMotor(DcMotor motor,  DcMotor.Direction direction) {
+    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor.setDirection(direction);
+  }
+  void initializeEncoderMotor(DcMotor motor,  DcMotor.Direction direction) {
+    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor.setDirection(direction);
+  }
+  void moveLiftBackToInitialPosition(DcMotor motor) {
+    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    motor.setTargetPosition(initialPosition);
+
+    motor.setPower(0.5);
+    while (motor.isBusy()) {
+      telemetry.addData("Lift position: ",motor.getCurrentPosition());
+    }
+    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Set motor mode to move to target position
+  }
+
+  //Moves the 4 mechanum wheels in a car formation
+  public void DTMove(double x, double y, double turn) {
+    LF.setPower(y+x+turn);
+    LB.setPower(y-x-turn);
+    RF.setPower(y-x+turn);
+    RB.setPower(y+x-turn);
   }
 
   @Override
@@ -73,6 +123,10 @@ public class PedroAutonomous extends PlayOpMode {
   void initializeCamera(WebcamName webcam) {
     tagProcessor = new AprilTagProcessor.Builder().build();
     visionPortal = new VisionPortal.Builder().setCamera(webcam).addProcessor(tagProcessor).build();
+  }
+
+  public double lerpIt(double value, double factor, double threshold) {
+      return lerp(value * factor, value, threshold);
   }
 
   public Pose computeCurrentFieldPose(AprilTagDetection tag) {
