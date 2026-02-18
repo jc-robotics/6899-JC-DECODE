@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode;
 
 import java.util.Arrays;
 
@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -18,7 +19,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
-import org.firstinspires.ftc.teamcode.Core;
+import org.firstinspires.ftc.teamcode;
 
 @Autonomous (name = "PreProgrammedAuto", group = "Autonomous")
 @Configurable // Panels
@@ -115,6 +116,7 @@ public class PedroAutonomous extends PlayOpMode {
   }
 
   public void moveToCenter() {
+    follower.follow(path1);
   }
   public void pickupSample() {
   }
@@ -155,7 +157,7 @@ public class PedroAutonomous extends PlayOpMode {
         telemetry.addData("Starting Pose", "X: %.2f, Y: %.2f, Heading: %.2f",
                            visionPose.getX(), visionPose.getY(), visionPose.getHeading());
     } else {
-        follower.setStartingPose(Start_Pos ? (Team ? new Pose(75, 8, Math.toRadians(90)) : new Pose(72, 8, Math.toRadians(90))) : (Team ? new Pose(75, 8, Math.toRadians(90)) : new Pose(72, 8, Math.toRadians(90))));
+        follower.setStartingPose(Start_Pos ? (Team ? new Pose(84, 8, Math.toRadians(90)) : new Pose(60, 8, Math.toRadians(90))) : (Team ? new Pose(121, 121, Math.toRadians(225)) : new Pose(24, 120, Math.toRadians(315))));
 
         telemetry.addData("Status", "No AprilTag detected. Using default pose.");
     }
@@ -191,7 +193,7 @@ public class PedroAutonomous extends PlayOpMode {
       Path1 = follower.pathBuilder()
         .addPath(
             new BezierLine(
-              new Pose(71.500, 8.000),
+              visionPose,
               new Pose(72.000, 72.000)
               )
             )
@@ -246,28 +248,31 @@ public class PedroAutonomous extends PlayOpMode {
   }
   @Override
   protected void run(double dt) throws InterruptedException {
-    switch (currentStage) {
-      case MOVE_TO_CENTER:
-        break;
-      case PICKUP_SAMPLE:
-        break;
-      case MOVE_TO_COLLECT:
-        break;
-      case DROP_SAMPlE:
-        break;
-      case MOVE_TO_SHOOT:
-        break;
-      case RETURN_TO_START:
-        break;
-      case WAIT:
-        break;
-      case RESET:
-        break;
-      case IDLE:
-        break;
-      case RESET:
-        return;
-    }
+    follower.isFollowing() ? (telemetry.addData("Bot is moving..."); telemetry.update()) : (
+        switch (currentStage) {
+          case MOVE_TO_CENTER:
+            moveToCenter();
+            break;
+          case PICKUP_SAMPLE:
+            break;
+          case MOVE_TO_COLLECT:
+            break;
+          case DROP_SAMPlE:
+            break;
+          case MOVE_TO_SHOOT:
+            break;
+          case RETURN_TO_START:
+            break;
+          case WAIT:
+            break;
+          case RESET:
+            break;
+          case IDLE:
+            break;
+          case RESET:
+            return;
+        }
+    )
 
   }
 

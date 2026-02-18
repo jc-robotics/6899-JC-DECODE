@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Core;
+package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Libs.JCLibs.lerp;
 
@@ -19,8 +19,8 @@ import java.util.Objects;
 
 
 
-@TeleOp(name="Core", group="demo")
-public class Core extends PlayOpMode {
+@TeleOp(name="TeleOp", group="demo")
+public class TeleOp extends PlayOpMode {
 
   @Override
   protected void preInitialize()
