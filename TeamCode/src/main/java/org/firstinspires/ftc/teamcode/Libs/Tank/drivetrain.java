@@ -5,17 +5,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 //
 public class drivetrain {
-    public DcMotor FL,FR,BL,BR,im,screw,FireL,FireR; // Declaration of Motors
+    public DcMotor FL,FR,BL,BR,im,screw,FireL,FireR,motor1; // Declaration of Motors
     public void init (HardwareMap map) {
         FL = map.get(DcMotor.class, "FrontLeft");
         FR = map.get(DcMotor.class, "FrontRight");
         BL = map.get(DcMotor.class, "BackLeft");
         BR = map.get(DcMotor.class, "BackRight");
-        im = map.get(DcMotor
-                .class, "intake");
+        im = map.get(DcMotor.class, "intake");
         screw = map.get(DcMotor.class, "screw");
         FireL = map.get(DcMotor.class, "FireL");
         FireR = map.get(DcMotor.class, "FireR");
+        motor1 = map.get(DcMotor.class, "motor1");
     } // function Hardware Map Motors so we can tell each motor what to do
 
     void initializeMotor(DcMotor motor, DcMotor.Direction direction) {
