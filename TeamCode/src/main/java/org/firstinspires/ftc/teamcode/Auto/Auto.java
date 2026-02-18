@@ -90,17 +90,17 @@ public class PedroAutonomous extends PlayOpMode {
 
     return new Pose(robotX, robotY, robotHeading);
   }
-public void checkAprilTagCorrection() {
+  public void checkAprilTagCorrection() {
     List<AprilTagDetection> detections = tagProcessor.getDetections();
 
     if (detections.size() > 0 && follower.isBusy() == false) {
 
-        AprilTagDetection tag = detections.get(0);
-        Pose visionPose = computeCurrentFieldPose(tag);
+      AprilTagDetection tag = detections.get(0);
+      Pose visionPose = computeCurrentFieldPose(tag);
 
-        follower.setPose(visionPose);
+      follower.setPose(visionPose);
     }
-}
+  }
 
   @Override
   public void init() {

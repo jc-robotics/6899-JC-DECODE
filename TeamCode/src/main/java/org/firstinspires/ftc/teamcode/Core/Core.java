@@ -65,7 +65,7 @@ public class Core extends PlayOpMode {
   public double LSy_lerped;
   public String DriveTrainGear = "";
 
-  double zero = 0.0;
+  public double liftZero;
 
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
@@ -89,6 +89,16 @@ public class Core extends PlayOpMode {
     motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     motor.setDirection(direction);
+  }
+  void moveLiftBackToInitialPosition(DcMotor motor) {
+    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    motor.setTargetPosition(initialPosition);
+
+    motor.setPower(0.5);
+    while (motor.isBusy()) {
+      telemetry.addData("Lift position: ",motor.getCurrentPosition());
+    }
+    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Set motor mode to move to target position
   }
 
   //Moves the 4 mechanum wheels in a car formation
@@ -211,6 +221,8 @@ public class Core extends PlayOpMode {
     if (face_x) {
       Intake.setPower(0.1);
       Lift.setPower(0.7);
+    } else if (previous.x) {
+      moveLiftBackToInitialPosition(Intake);
     }
     //direct lift control with vertical d pad
     Lift.setPower(up_d ? 0.5 : down_d ? -0.5 : 0);
@@ -239,6 +251,7 @@ public class Core extends PlayOpMode {
     initializeMotor(GunL, DcMotor.Direction.FORWARD);
     initializeMotor(Intake, DcMotor.Direction.FORWARD);
     initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
+    liftZero = Lift.getCurrentPosition();
     current = new Gamepad();
 
 
