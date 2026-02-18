@@ -170,7 +170,7 @@ public class PedroAutonomous extends PlayOpMode {
   }
 
   public void moveToCenter() {
-    follower.follow(path1);
+    follower.follow(Centre);
   }
   public void pickupSample() {
   }
@@ -237,14 +237,13 @@ public class PedroAutonomous extends PlayOpMode {
   }
 
   public static class Paths {
-    public PathChain Path1;
-    public PathChain Path2;
-    public PathChain Path3;
-    public PathChain Path4;
-    public PathChain Path5;
+    public PathChain Centre;
+    public PathChain Collect;
+    public PathChain Shoot;
+    public PathChain ReturnStart;
 
     public Paths(Follower follower) {
-      Path1 = follower.pathBuilder()
+      Centre = follower.pathBuilder()
         .addPath(
             new BezierLine(
               visionPose,
@@ -254,7 +253,7 @@ public class PedroAutonomous extends PlayOpMode {
         .setLinearHeadingInterpolation(Math.toRadians(null), Math.toRadians(90))
         .build();
 
-      Path2 = follower.pathBuilder()
+      Collect = follower.pathBuilder()
         .addPath(
             new BezierLine(
               new Pose(72.000, 72.000),
@@ -264,7 +263,7 @@ public class PedroAutonomous extends PlayOpMode {
         .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
         .build();
 
-      Path3 = follower.pathBuilder()
+      Shoot = follower.pathBuilder()
         .addPath(
             new BezierLine(
               new Pose(72.000, 84.000),
@@ -274,21 +273,11 @@ public class PedroAutonomous extends PlayOpMode {
         .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
         .build();
 
-      Path4 = follower.pathBuilder()
+      ReturnStart = follower.pathBuilder()
         .addPath(
             new BezierLine(
               new Pose(18.000, 84.000),
               new Pose(72.000, 72.000)
-              )
-            )
-        .setTangentHeadingInterpolation()
-        .build();
-
-      Path5 = follower.pathBuilder()
-        .addPath(
-            new BezierLine(
-              new Pose(72.000, 72.000),
-              new Pose(108.000, 108.000)
               )
             )
         .setTangentHeadingInterpolation()
