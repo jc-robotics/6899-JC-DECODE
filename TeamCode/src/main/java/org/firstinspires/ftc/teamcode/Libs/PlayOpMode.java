@@ -57,6 +57,8 @@ public abstract class PlayOpMode extends LinearOpMode{
      */
     protected abstract void initialize();
 
+    protected abstract void preInitilize();
+
     /**
      * Loop
      */
