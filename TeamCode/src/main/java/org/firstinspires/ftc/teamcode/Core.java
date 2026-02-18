@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 @TeleOp(name="TeleOp", group="demo")
-public class TeleOp extends PlayOpMode {
+public class Control extends PlayOpMode {
 
   @Override
   protected void preInitialize()
