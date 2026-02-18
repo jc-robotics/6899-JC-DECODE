@@ -256,7 +256,7 @@ public class PedroAutonomous extends PlayOpMode {
       Collect = follower.pathBuilder()
         .addPath(
             new BezierLine(
-              new Pose(72.000, 72.000),
+              visionPose,
               new Pose(72.000, 84.000)
               )
             )
@@ -266,7 +266,7 @@ public class PedroAutonomous extends PlayOpMode {
       Shoot = follower.pathBuilder()
         .addPath(
             new BezierLine(
-              new Pose(72.000, 84.000),
+              visionPose,
               new Pose(18.000, 84.000)
               )
             )
@@ -276,7 +276,7 @@ public class PedroAutonomous extends PlayOpMode {
       ReturnStart = follower.pathBuilder()
         .addPath(
             new BezierLine(
-              new Pose(18.000, 84.000),
+              visionPose,
               new Pose(72.000, 72.000)
               )
             )

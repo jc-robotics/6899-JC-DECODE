@@ -64,7 +64,7 @@ abstract public class Control extends PlayOpMode {
   public double LSy_lerped;
   public String DriveTrainGear = "";
 
-  public double liftZero;
+  public int liftZero;
 
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
