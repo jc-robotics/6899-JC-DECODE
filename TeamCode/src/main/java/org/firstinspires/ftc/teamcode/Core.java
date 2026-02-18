@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.*;
 
 import org.firstinspires.ftc.teamcode.Libs.Classes.Vector3;
 import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
