@@ -1,0 +1,311 @@
+package org.firstinspires.ftc.teamcode;
+
+import static org.firstinspires.ftc.teamcode.Libs.JCLibs.lerp;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
+
+
+
+
+@TeleOp(name="Demo 2", group="demo")
+public class demo extends PlayOpMode {
+
+  @Override
+  protected void preInitialize()
+  {
+    telemetry.addData("Status: ","pre inti...");
+
+    telemetry.update();
+    isTeleOp = true;
+    telemetry.addData("Status: ","pre init done...");
+
+    telemetry.update();
+  }
+
+
+  //CORE VARIABLES
+  DcMotor LF, LB, RF, RB;
+  DcMotor GunR, GunL;
+  DcMotor Intake;
+  DcMotor Lift;
+  //Controller
+  Gamepad current;
+  Gamepad previous;
+
+  //GAMEPAD VARIABLES
+  public double LSx;
+  public double LSy;
+  public double RSx;
+  public double RSy;
+
+  public boolean up_d;
+  public boolean down_d;
+  public boolean left_d;
+  public boolean right_d;
+
+  public double RTrigger;
+  public double LTrigger;
+  public boolean RBumper;
+  public boolean LBumper;
+
+  public boolean face_a;
+  public boolean face_b;
+  public boolean face_x;
+  public boolean face_y;
+
+  public double trs;
+  public double LSx_lerped;
+  public double RSx_lerped;
+  public double LSy_lerped;
+  public String DriveTrainGear = "";
+
+  public double liftZero;
+
+  public void initHardware(HardwareMap map) {
+    LF = map.get(DcMotor.class, "lf");
+    RF = map.get(DcMotor.class, "rf");
+    LB = map.get(DcMotor.class, "lr");
+    RB = map.get(DcMotor.class, "rr");
+    GunR = map.get(DcMotor.class, "FireR");
+    GunL = map.get(DcMotor.class, "FireL");
+    Intake = map.get(DcMotor.class, "intake");
+    Lift = map.get(DcMotor.class, "screw");
+  }
+
+  //Motor Setup
+  void initializeMotor(DcMotor motor,  DcMotor.Direction direction) {
+    motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor.setDirection(direction);
+  }
+  void initializeEncoderMotor(DcMotor motor,  DcMotor.Direction direction) {
+    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    motor.setDirection(direction);
+  }
+  void moveLiftBackToInitialPosition(DcMotor motor) {
+    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    motor.setTargetPosition((int)liftZero);
+
+    motor.setPower(0.5);
+    while (motor.isBusy()) {
+      telemetry.addData("Lift position: ",motor.getCurrentPosition());
+    }
+    motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Set motor mode to move to target position
+  }
+
+  //Moves the 4 mechanum wheels in a car formation
+  public void DTMove(double x, double y, double turn) {
+    LF.setPower(y+x+turn);
+    LB.setPower(y-x-turn);
+    RF.setPower(y-x+turn);
+    RB.setPower(y+x-turn);
+  }
+  // Gear shifter for speed setting
+  public double GearShift(int DTGear) {
+    double DTSpeed;
+    switch (DTGear){
+      case 1:
+        DTSpeed = 0.2;
+        DriveTrainGear = "1- 20%";
+        break;
+      case 2:
+        DTSpeed = 0.4;
+        DriveTrainGear = "2- 40%";
+        break;
+      case 3:
+        DTSpeed = 0.6;
+        DriveTrainGear = "3- 60%";
+        break;
+      case 4:
+        DTSpeed = 0.8;
+        DriveTrainGear = "4- 80%";
+        break;
+      case 5:
+        DTSpeed = 1;
+        DriveTrainGear = "5- 100%";
+        break;
+      default:
+        DTSpeed = 0;
+        DriveTrainGear ="0- 0%";
+        break;
+    }
+    return DTSpeed;
+  }
+  public double GradualGearShift(double Shifting_value) {
+    Shifting_value = Math.ceil(5*Shifting_value);
+    return GearShift((int) Shifting_value);
+  }
+
+  public void Controller(Gamepad gamepaD){
+
+    //Thump sticks
+    LSy = gamepaD.left_stick_y;
+    LSx = gamepaD.left_stick_x;
+    RSx = -gamepaD.right_stick_x;
+    RSy = -gamepaD.right_stick_y;
+
+    //Dpad
+    up_d = gamepaD.dpad_up;
+    down_d = gamepaD.dpad_down;
+    left_d = gamepaD.dpad_left;
+    right_d = gamepaD.dpad_right;
+
+    //Face buttons
+    face_a = gamepaD.a;
+    face_b = gamepaD.b;
+    face_x = gamepaD.x;
+    face_y = gamepaD.y;
+
+    //Top buttons
+    RTrigger = gamepaD.right_trigger;
+    LTrigger = gamepaD.left_trigger;
+    RBumper = gamepaD.right_bumper;
+    LBumper = gamepaD.left_bumper;
+
+  }
+
+  public double applyDeadzone(double value, double threshold) {
+      return Math.abs(value) > threshold ? value : 0;
+  }
+  public double lerpIt(double value, double factor, double threshold) {
+      return lerp(value * factor, value, threshold);
+  }
+  public void Controlling() {
+
+    RSy = applyDeadzone(RSy, 0.05);
+    RTrigger = applyDeadzone(RTrigger, 0.05);
+
+    if (LBumper) {
+      // use left bumper to et far more precise inputs without LERP
+      LSx_lerped = applyDeadzone(LSx, 0.7)/2;
+      LSy_lerped = applyDeadzone(LSy, 0.1)/2;
+      RSx_lerped = applyDeadzone(RSx, 0.1)/2;
+    } else {
+      //base movement options
+      LSx_lerped = lerpIt(applyDeadzone(LSx, 0.7), 0.3, 0.8);
+      LSy_lerped = lerpIt(applyDeadzone(LSy, 0.1), 0.3, 0.8);
+      RSx_lerped = lerpIt(applyDeadzone(RSx, 0.1), 0.3, 0.8);
+    }
+    DTMove(LSx_lerped, LSy_lerped, RSx_lerped);
+
+
+    //pressing a reverses the gun to push back any balls
+    if (face_a && !previous.a) {
+      GunL.setPower(-0.3);
+      GunR.setPower(-0.3);
+    }
+    //right trigger is the gun controls
+    if (RTrigger != 0) {
+      //gradual gear shift refers to more reliable controls for the gun, holding right bumper diasbles the gear for more direct control
+      double power = RBumper ? RTrigger : GradualGearShift(RTrigger);
+      GunL.setPower(power);
+      GunR.setPower(power);
+    }
+    //lets the intake rip when the b button is released
+    if (!face_b && previous.b) {
+      Intake.setPower(0.6);
+    }
+    //y is the moderate button for the intake to slowly pull in a ball
+    if (face_y) {
+      Intake.setPower(0.2);
+    }
+    //x is the button to raise the ball to the gun to shoot
+    if (face_x) {
+      Intake.setPower(0.1);
+      Lift.setPower(0.7);
+    } else if (previous.x) {
+      moveLiftBackToInitialPosition(Intake);
+    }
+    //direct lift control with vertical d pad
+    Lift.setPower(up_d ? 0.5 : down_d ? -0.5 : 0);
+    //direct intake control with vertical d pad
+    Intake.setPower(left_d ? 0.5 : right_d ? -0.5 : 0);
+  }
+
+  @Override
+  protected void initialize() {
+    telemetry.addData("Status: ","init...");
+
+    telemetry.update();
+    HardwareMap map;
+
+    telemetry.addData("Status: ","Initializing Major Classes...");
+    ElapsedTime Timer = new ElapsedTime();
+    //Class Ref
+
+    map = hardwareMap;
+
+    initHardware(map);
+    //Drive Train Motor Setup
+    initializeMotor(LB, DcMotor.Direction.REVERSE);
+    initializeMotor(LF, DcMotor.Direction.FORWARD);
+    initializeMotor(RF, DcMotor.Direction.FORWARD);
+    initializeMotor(RB, DcMotor.Direction.REVERSE);
+    initializeMotor(GunR, DcMotor.Direction.REVERSE);
+    initializeMotor(GunL, DcMotor.Direction.FORWARD);
+    initializeMotor(Intake, DcMotor.Direction.FORWARD);
+    initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
+    liftZero = Lift.getCurrentPosition();
+    current = new Gamepad();
+
+
+    previous = new Gamepad();
+
+    telemetry.addData("Status: ","Initialization Complete");
+    telemetry.update();
+  }
+
+  //Place any telemetry data in function
+  void Telemetry(){
+    telemetry.addData("Left stick x value: ",LSx);
+    telemetry.addData("Left stick y value: ",LSy);
+    telemetry.addData("Right stick x value: ",RSx);
+    telemetry.addData("Right stick y value: ",RSy);
+    telemetry.addLine();
+
+    telemetry.addData("D-pad up on: ",up_d);
+    telemetry.addData("D-pad down on: ",down_d);
+    telemetry.addData("D-pad left on: ",left_d);
+    telemetry.addData("D-pad right on: ",right_d);
+    telemetry.addLine();
+
+    telemetry.addData("Right Trigger value: ",RTrigger);
+    telemetry.addData("Left Trigger value: ",LTrigger);
+    telemetry.addData("Right Bumper on: ",RBumper);
+    telemetry.addData("Left Bumper on: ",LBumper);
+    telemetry.addLine();
+
+    telemetry.addData("Face button A on: ",face_a);
+    telemetry.addData("Face button B on: ",face_b);
+    telemetry.addData("Face button X on: ",face_x);
+    telemetry.addData("Face button Y on: ",face_y);
+    telemetry.addLine();
+    telemetry.addData("Left stick x value: ",LSx_lerped);
+    telemetry.addData("Left stick y value: ",LSy_lerped);
+    telemetry.addData("Right stick x value: ",RSx_lerped);
+    telemetry.addLine();
+    telemetry.addData("Gear: ",DriveTrainGear);
+
+    telemetry.addData("Status: ","Setting Automation Variables...");
+
+    telemetry.update();
+  }
+
+  @Override
+  protected void run(double deltaTime) throws InterruptedException {
+    previous.copy(current);
+    Controller(gamepad1);
+    Controlling();
+
+    Telemetry();
+  }
+}

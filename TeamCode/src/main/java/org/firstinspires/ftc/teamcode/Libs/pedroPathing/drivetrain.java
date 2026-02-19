@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class drivetrain {
     public DcMotor FL,FR,BL,BR,im,FireL,FireR,screw;
     public void init (HardwareMap map) {
-        FL = map.get(DcMotor.class, "Front Left");
-        FR = map.get(DcMotor.class, "Front Right");
-        BL = map.get(DcMotor.class, "Back Left");
-        BR = map.get(DcMotor.class, "Back Right");
+        FL = map.get(DcMotor.class, "FrontLeft");
+        FR = map.get(DcMotor.class, "FrontRight");
+        BL = map.get(DcMotor.class, "BackLeft");
+        BR = map.get(DcMotor.class, "BackRight");
         im = map.get(DcMotor.class, "intake");
         FireL = map.get(DcMotor.class, "FireL");
         FireR = map.get(DcMotor.class, "FireR");
@@ -31,16 +31,19 @@ public class drivetrain {
 
     }
 
-    public void intake(DcMotor motor, DcMotor.Direction direction, double power) {
-        if( power < 0){
+    public void intake(boolean button1, boolean button2, DcMotor motor, DcMotor.Direction direction, double power) {
+        if( button1){
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor.setDirection(direction);
             motor.setPower(power);
+        } else if (button2){
+            motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor.setDirection(direction);
+            motor.setPower(-power);
         } else {
             motor.setPower(0);
-
         }
 
     }
