@@ -19,7 +19,7 @@ import java.util.Objects;
 
 
 @TeleOp(name="TeleOp", group="demo")
-abstract public class Control extends PlayOpMode {
+abstract public class Core extends PlayOpMode {
 
   @Override
   protected void preInitialize()
@@ -64,7 +64,7 @@ abstract public class Control extends PlayOpMode {
   public double LSy_lerped;
   public String DriveTrainGear = "";
 
-  public int liftZero;
+  public double liftZero;
 
   public void initHardware(HardwareMap map) {
     LF = map.get(DcMotor.class, "FrontLeft");
@@ -91,7 +91,7 @@ abstract public class Control extends PlayOpMode {
   }
   void moveLiftBackToInitialPosition(DcMotor motor) {
     motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    motor.setTargetPosition(liftZero);
+    motor.setTargetPosition((int)liftZero);
 
     motor.setPower(0.5);
     while (motor.isBusy()) {
