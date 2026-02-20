@@ -20,13 +20,7 @@ public class demo extends PlayOpMode {
   @Override
   protected void preInitialize()
   {
-    telemetry.addData("Status: ","pre inti...");
-
-    telemetry.update();
     isTeleOp = true;
-    telemetry.addData("Status: ","pre init done...");
-
-    telemetry.update();
   }
 
 

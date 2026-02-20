@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Libs.PlayOpMode;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -43,23 +46,26 @@ import java.util.Objects;
 
 
 
-@Autonomous (name = "PreProgrammedAuto", group = "Autonomous")
+@Autonomous (name = "DemoAuto", group = "Autonomous")
 @Configurable // Panels
-public class PedroAutonomous extends PlayOpMode {
-  private TelemetryManager panelsTelemetry; // Panels Telemetry instance
+public class PedroAutonomous extends OpMode {
+  private TelemetryManager telemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
-  private int pathState; // Current autonomous path state (state machine)
   private Paths paths; // Paths defined in the Paths class
-  public double odoInches;
+  public Pose startingPose;
   AprilTagProcessor tagProcessor;
   VisionPortal visionPortal;
+  List<AprilTagDetection> detections = new ArrayList<>();
   double cameraOffsetx = -5, cameraOffsety = 4;
   boolean Team, Start_Pos; // Red & Triangle = true; Blue & Goal = false
+  double myPitch, myRoll, myYaw;
+  double fieldHeading;
+  Pose currentPose;
+  aTags fieldTag;
+
   enum Stage {
     MOVE_TO_CENTER,
-    PICKUP_SAMPLE,
     MOVE_TO_COLLECT,
-    MOVE_TO_SHOOT,
     RETURN_TO_START,
     WAIT,
     RESET,
@@ -71,7 +77,7 @@ public class PedroAutonomous extends PlayOpMode {
   DcMotor Intake;
   DcMotor Lift;
   WebcamName Camera;
-  public double liftZero;
+  public int liftZero;
 
   public static class aTags{
     public int ID;
@@ -85,13 +91,13 @@ public class PedroAutonomous extends PlayOpMode {
   public aTags aTagRed = new aTags(24, 55.63, 58.34);
   public aTags aTagBlue = new aTags(20, -55.63, 58.34);
   public static class Paths {
-    public PathChain Centre;
+    public PathChain Center;
     public PathChain Collect;
-    public PathChain Shoot;
+    public PathChain Collect2;
     public PathChain ReturnStart;
 
     public Paths(Follower follower) {
-      Centre = follower.pathBuilder()
+      Center = follower.pathBuilder()
         .addPath(
             new BezierLine(
               follower.getPose(), 
@@ -103,34 +109,35 @@ public class PedroAutonomous extends PlayOpMode {
 
 
       Collect = follower.pathBuilder()
-        .addPath(
+          .addPath(
             new BezierLine(
               follower.getPose(),
-              new Pose(72.000, 84.000)
-              )
+            new Pose(4.000, 45.423)
             )
-        .setLinearHeadingInterpolation(follower.getPose().getHeading(), Math.toRadians(0))
-        .build();
+          )
+          .setTangentHeadingInterpolation()
+          .setReversed()
+          .build();
 
-      Shoot = follower.pathBuilder()
-        .addPath(
+      Collect2 = follower.pathBuilder()
+          .addPath(
             new BezierLine(
-              follower.getPose(),
-              new Pose(18.000, 84.000)
-              )
+              new Pose(4.000, 45.423),
+            new Pose(4.000, 45.423)
             )
-        .setLinearHeadingInterpolation(follower.getPose().getHeading(), Math.toRadians(0))
-        .build();
+          )
+          .setLinearHeadingInterpolation(Math.toRadians(21), Math.toRadians(0))
+          .build();
 
       ReturnStart = follower.pathBuilder()
-        .addPath(
+          .addPath(
             new BezierLine(
-              follower.getPose(),
-              new Pose(72.000, 72.000)
-              )
+              new Pose(4.000, 45.423),
+            new Pose(38.658, 33.342)
             )
-        .setTangentHeadingInterpolation()
-        .build();
+          )
+          .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+          .build();
     }
   }
 
@@ -165,17 +172,16 @@ public class PedroAutonomous extends PlayOpMode {
     RB.setPower(y+x-turn);
   }
 
-  @Override
+
   public void initHardware(HardwareMap map) {
-    LF = map.get(DcMotor.class, "FrontLeft");
-    RF = map.get(DcMotor.class, "FrontRight");
-    LB = map.get(DcMotor.class, "BackLeft");
-    RB = map.get(DcMotor.class, "BackRight");
-    Odo = map.get(DcMotor.class, "OdoWheel");
-    GunR = map.get(DcMotor.class, "GunRight");
-    GunL = map.get(DcMotor.class, "GunLeft");
-    Intake = map.get(DcMotor.class, "Intake");
-    Lift = map.get(DcMotor.class, "Lift");
+    LF = map.get(DcMotor.class, "lf");
+    RF = map.get(DcMotor.class, "rf");
+    LB = map.get(DcMotor.class, "lr");
+    RB = map.get(DcMotor.class, "rr");
+    GunR = map.get(DcMotor.class, "FireR");
+    GunL = map.get(DcMotor.class, "FireL");
+    Intake = map.get(DcMotor.class, "intake");
+    Lift = map.get(DcMotor.class, "screw");
     Camera = map.get(WebcamName.class, "Webcam");
   }
   void initializeOdoMotor(DcMotor motor) {
@@ -184,7 +190,7 @@ public class PedroAutonomous extends PlayOpMode {
     motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
   }
   void initializeCamera(WebcamName webcam) {
-    tagProcessor = new AprilTagProcessor.Builder().build();
+    tagProcessor = new AprilTagProcessor.Builder().setDrawTagID(true).setDrawTagOutline(true).setDrawAxes(true).setDrawCubeProjection(true).setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES).build();
     visionPortal = new VisionPortal.Builder().setCamera(webcam).addProcessor(tagProcessor).build();
   }
 
@@ -193,21 +199,18 @@ public class PedroAutonomous extends PlayOpMode {
   }
 
   public Pose computeFieldPoseFromTag(AprilTagDetection tag) {
-    aTags fieldTag;
-    if (tag.id == aTagRed.ID) {
-      fieldTag = aTagRed;
-    } else if (tag.id == aTagBlue.ID) {
-      fieldTag = aTagBlue;
-    } else {
-      return null; // Unknown tag
-    }
 
+    if (tag.id == aTagRed.ID) {
+      fieldTag = new aTags(aTagRed.ID, aTagRed.x, aTagRed.y);
+    } else if (tag.id == aTagBlue.ID) {
+      fieldTag = new aTags(aTagBlue.ID, aTagBlue.x, aTagBlue.y);
+    }
     Pose relative = computeCurrentFieldPose(tag);
 
     // Convert to field coordinates
     double fieldX = relative.getX() + fieldTag.x;
     double fieldY = relative.getY() + fieldTag.y;
-    double fieldHeading = relative.getHeading();
+    fieldHeading = relative.getHeading();
 
     return new Pose(fieldX, fieldY, fieldHeading);
   }
@@ -223,20 +226,48 @@ public class PedroAutonomous extends PlayOpMode {
     }
   }
 
+  public AprilTagDetection GetTagBySpecificID(int ID){
+
+    for(AprilTagDetection detection : detections){
+      if(detection.id ==  ID){
+        return detection;
+      }
+    }
+    return null;
+  }
+  public  List<AprilTagDetection> getDectectedTags(){
+    return detections;
+  }
+
+
+
+
+    public Pose computeCurrentFieldPose(AprilTagDetection tag) {
+      double X = tag.robotPose.getPosition().x;
+      double Y = tag.robotPose.getPosition().y;
+
+      myPitch = tag.robotPose.getOrientation().getPitch(AngleUnit.DEGREES);
+      myRoll = tag.robotPose.getOrientation().getRoll(AngleUnit.DEGREES);
+      myYaw = tag.robotPose.getOrientation().getYaw(AngleUnit.DEGREES);
+      return  new Pose(X, Y, fieldHeading);
+    }
+
+
+
+
   public void moveToCenter() {
-    follower.follow(paths.Centre);
+    follower.followPath(paths.Center);
+
   }
   public void moveToCollect() {
-    follower.follow(paths.Collect);
-  }
-  public void moveToShoot() {
-    follower.follow(paths.Shoot);
+    follower.followPath(paths.Collect);
+    follower.followPath(paths.Collect2);
   }
   public void pickupSample() {
     return;
   }
   public void returnToStart() {
-    follower.follow(paths.ReturnStart);
+    follower.followPath(paths.ReturnStart);
   }
   @Override
   public void init() {
@@ -253,15 +284,13 @@ public class PedroAutonomous extends PlayOpMode {
     initializeEncoderMotor(Lift, DcMotor.Direction.FORWARD);
     initializeCamera(Camera);
     follower = Constants.createFollower(hardwareMap);
-    List<AprilTagDetection> detections = tagProcessor.getDetections();
+
     if (!detections.isEmpty()) {
       AprilTagDetection tag = detections.get(0);
       Pose visionPose = computeCurrentFieldPose(tag);
-      follower.setStartingPose(visionPose);
-      telemetry.addData("Starting Pose", "X: %.2f, Y: %.2f, Heading: %.2f",
-          visionPose.getX(), visionPose.getY(), visionPose.getHeading());
+      startingPose = visionPose;
+      //telemetry.addData("Starting Pose", "X: %.2f, Y: %.2f, Heading: %.2f",visionPose.getX(), visionPose.getY(), visionPose.getHeading());
     } else {
-      Pose startingPose;
 
       if (Start_Pos) {
         if (Team) {
@@ -283,6 +312,7 @@ public class PedroAutonomous extends PlayOpMode {
     }
 
     paths = new Paths(follower); // Build paths
+    currentStage = Stage.MOVE_TO_COLLECT;
 
     telemetry.addData("Status", "Initialized");
     telemetry.update();
@@ -292,46 +322,37 @@ public class PedroAutonomous extends PlayOpMode {
   public void loop() {
     follower.update(); // Update Pedro Pathing
 
-    pathState = autonomousPathUpdate(); // Update autonomous state machine
-    List<AprilTagDetection> detections = tagProcessor.getDetections();
+    detections = tagProcessor.getDetections();
+
     if (!detections.isEmpty()) {
       currentPose = computeFieldPoseFromTag(detections.get(0));
       follower.setPose(currentPose);
     }
 
     // Log values to Panels and Driver Station
-    telemetry.addData("Path State: ", pathState);
+    telemetry.addData("Path State: ", currentStage);
     telemetry.addData("X: ", currentPose.getX());
     telemetry.addData("Y: ", currentPose.getY());
     telemetry.addData("Heading: ", currentPose.getHeading());
     telemetry.update();
+    run();
   }
   Stage currentStage = Stage.IDLE;
-  @Override
-  protected void preInitialize() {
-    isTeleOp = false;
-  }
-  @Override
-  protected void run(double dt) throws InterruptedException {
-    if (follower.isFollowing()) {
+
+
+
+  protected void run()  {
+    if (follower.isBusy()) {
       telemetry.addData("Bot is moving...", "");
       telemetry.update();
     } else {
       switch(currentStage) {
         case MOVE_TO_CENTER:
           moveToCenter();
-          currentStage = Stage.PICKUP_SAMPLE;
+          currentStage = Stage.MOVE_TO_COLLECT;
           break;
         case MOVE_TO_COLLECT:
           moveToCollect();
-          currentStage = Stage.MOVE_TO_SHOOT;
-          break;
-        case PICKUP_SAMPLE:
-          pickupSample();
-          currentStage = Stage.MOVE_TO_COLLECT;
-          break;
-        case MOVE_TO_SHOOT:
-          moveToShoot();
           currentStage = Stage.RETURN_TO_START;
           break;
         case RETURN_TO_START:
@@ -345,17 +366,9 @@ public class PedroAutonomous extends PlayOpMode {
           break;
         case IDLE:
           telemetry.addData("Bot Run:", "Complete");
-          currentStage = Stage.PICKUP_SAMPLE;
           break;
       }
     }
 
-  }
-
-  public int autonomousPathUpdate() {
-    // Add your state machine Here
-    // Access paths with paths.pathName
-    // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
-    return 0;
   }
 }
