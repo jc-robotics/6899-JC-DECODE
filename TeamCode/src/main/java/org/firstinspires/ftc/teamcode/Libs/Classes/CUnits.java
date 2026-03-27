@@ -6,7 +6,7 @@ public class CUnits {
      * @return - ticks
      */
     public int sq_to_tk(double sq) {
-        double tk = sq * 1100;
+        double tk = sq * 1400;
         return (int) tk;
     }
 
@@ -15,7 +15,7 @@ public class CUnits {
      * @return - ticks
      */
     public int sq_to_tk_S(double sq) {
-        double tk = sq * 1200;
+        double tk = sq * 1600;
         return (int) tk;
     }
 
